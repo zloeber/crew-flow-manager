@@ -1,0 +1,28 @@
+# Sample CrewAI Flow Configuration
+
+name: Research and Report Flow
+description: A flow that researches a topic and generates a comprehensive report
+
+agents:
+  - role: Senior Researcher
+    goal: Research the given topic thoroughly and gather accurate information
+    backstory: |
+      You are an experienced researcher with a keen eye for detail.
+      You have spent years gathering and validating information from various sources.
+    tools: []
+    
+  - role: Report Writer
+    goal: Create well-structured and engaging reports based on research findings
+    backstory: |
+      You are a skilled writer who excels at transforming complex research
+      into clear, engaging content that is accessible to a broad audience.
+    tools: []
+
+tasks:
+  - description: Research the topic thoroughly
+    agent: Senior Researcher
+    expected_output: Detailed research findings with sources
+    
+  - description: Write a comprehensive report based on the research
+    agent: Report Writer
+    expected_output: A well-structured report with introduction, findings, and conclusion

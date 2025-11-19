@@ -1,0 +1,14 @@
+# Example: Simple Task Flow
+
+name: Simple Task Flow
+description: A basic flow with a single agent and task
+
+agents:
+  - role: Assistant
+    goal: Help with general tasks
+    backstory: You are a helpful assistant
+
+tasks:
+  - description: Complete the requested task
+    agent: Assistant
+    expected_output: Task completion summary
