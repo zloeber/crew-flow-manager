@@ -53,6 +53,8 @@ class ExecutionCreate(BaseModel):
     """Schema for creating an execution"""
     flow_id: int
     model_override: Optional[str] = None
+    llm_provider: Optional[str] = None  # openai, ollama, custom
+    llm_base_url: Optional[str] = None  # Custom base URL for LLM
     inputs: Optional[Dict[str, Any]] = None
 
 
@@ -62,6 +64,8 @@ class ExecutionResponse(BaseModel):
     flow_id: int
     status: ExecutionStatus
     model_override: Optional[str] = None
+    llm_provider: Optional[str] = None
+    llm_base_url: Optional[str] = None
     inputs: Optional[Dict[str, Any]] = None
     outputs: Optional[Dict[str, Any]] = None
     error_message: Optional[str] = None
@@ -81,6 +85,8 @@ class ScheduleBase(BaseModel):
     name: str = Field(..., min_length=1, max_length=255)
     cron_expression: str = Field(..., min_length=1, max_length=100)
     model_override: Optional[str] = None
+    llm_provider: Optional[str] = None  # openai, ollama, custom
+    llm_base_url: Optional[str] = None  # Custom base URL for LLM
     inputs: Optional[Dict[str, Any]] = None
     is_active: bool = True
 
@@ -95,6 +101,8 @@ class ScheduleUpdate(BaseModel):
     name: Optional[str] = Field(None, min_length=1, max_length=255)
     cron_expression: Optional[str] = Field(None, min_length=1, max_length=100)
     model_override: Optional[str] = None
+    llm_provider: Optional[str] = None
+    llm_base_url: Optional[str] = None
     inputs: Optional[Dict[str, Any]] = None
     is_active: Optional[bool] = None
 

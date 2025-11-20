@@ -44,6 +44,8 @@ class Execution(Base):
     flow_id = Column(Integer, ForeignKey("flows.id"), nullable=False)
     status = Column(Enum(ExecutionStatus), default=ExecutionStatus.PENDING, index=True)
     model_override = Column(String(255), nullable=True)
+    llm_provider = Column(String(50), nullable=True)  # openai, ollama, custom
+    llm_base_url = Column(String(500), nullable=True)  # Custom base URL for LLM
     inputs = Column(JSON, nullable=True)
     outputs = Column(JSON, nullable=True)
     error_message = Column(Text, nullable=True)
@@ -65,6 +67,8 @@ class Schedule(Base):
     name = Column(String(255), nullable=False)
     cron_expression = Column(String(100), nullable=False)
     model_override = Column(String(255), nullable=True)
+    llm_provider = Column(String(50), nullable=True)  # openai, ollama, custom
+    llm_base_url = Column(String(500), nullable=True)  # Custom base URL for LLM
     inputs = Column(JSON, nullable=True)
     is_active = Column(Boolean, default=True)
     last_run_at = Column(DateTime, nullable=True)

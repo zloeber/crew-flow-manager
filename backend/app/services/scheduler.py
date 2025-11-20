@@ -59,6 +59,8 @@ class SchedulerService:
         flow_id: int,
         cron_expression: str,
         model_override: str = None,
+        llm_provider: str = None,
+        llm_base_url: str = None,
         inputs: dict = None
     ):
         """
@@ -69,6 +71,8 @@ class SchedulerService:
             flow_id: Flow ID to execute
             cron_expression: Cron expression for scheduling
             model_override: Optional model override
+            llm_provider: LLM provider (openai, ollama, custom)
+            llm_base_url: Custom base URL for LLM endpoint
             inputs: Optional inputs
         """
         if not self._running:
@@ -94,7 +98,7 @@ class SchedulerService:
             func=self._execute_scheduled_flow,
             trigger=trigger,
             id=job_id,
-            args=[schedule_id, flow_id, model_override, inputs],
+            args=[schedule_id, flow_id, model_override, llm_provider, llm_base_url, inputs],
             replace_existing=True
         )
         
@@ -117,6 +121,8 @@ class SchedulerService:
         schedule_id: int,
         flow_id: int,
         model_override: str = None,
+        llm_provider: str = None,
+        llm_base_url: str = None,
         inputs: dict = None
     ):
         """Execute a scheduled flow"""
@@ -134,10 +140,21 @@ class SchedulerService:
                 logger.error(f"Flow {flow_id} not found")
                 return
             
+            # Get schedule for LLM config
+            schedule = db.query(Schedule).filter(Schedule.id == schedule_id).first()
+            if schedule:
+                # Use schedule's LLM config if not provided
+                if llm_provider is None:
+                    llm_provider = schedule.llm_provider
+                if llm_base_url is None:
+                    llm_base_url = schedule.llm_base_url
+            
             # Create execution record
             execution = Execution(
                 flow_id=flow_id,
                 model_override=model_override,
+                llm_provider=llm_provider,
+                llm_base_url=llm_base_url,
                 inputs=inputs
             )
             db.add(execution)
@@ -145,7 +162,6 @@ class SchedulerService:
             db.refresh(execution)
             
             # Update schedule last run
-            schedule = db.query(Schedule).filter(Schedule.id == schedule_id).first()
             if schedule:
                 schedule.last_run_at = datetime.utcnow()
                 db.commit()
@@ -154,7 +170,7 @@ class SchedulerService:
             loop = asyncio.new_event_loop()
             asyncio.set_event_loop(loop)
             loop.run_until_complete(
-                flow_executor.execute_flow(db, execution.id, flow, model_override, inputs)
+                flow_executor.execute_flow(db, execution.id, flow, model_override, llm_provider, llm_base_url, inputs)
             )
             loop.close()
             

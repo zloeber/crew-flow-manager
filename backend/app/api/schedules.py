@@ -65,6 +65,8 @@ def create_schedule(
         name=schedule_data.name,
         cron_expression=schedule_data.cron_expression,
         model_override=schedule_data.model_override,
+        llm_provider=schedule_data.llm_provider,
+        llm_base_url=schedule_data.llm_base_url,
         inputs=schedule_data.inputs,
         is_active=schedule_data.is_active
     )
@@ -81,6 +83,8 @@ def create_schedule(
                 flow_id=schedule.flow_id,
                 cron_expression=schedule.cron_expression,
                 model_override=schedule.model_override,
+                llm_provider=schedule.llm_provider,
+                llm_base_url=schedule.llm_base_url,
                 inputs=schedule.inputs
             )
             
@@ -123,6 +127,10 @@ def update_schedule(
         schedule.cron_expression = schedule_data.cron_expression
     if schedule_data.model_override is not None:
         schedule.model_override = schedule_data.model_override
+    if schedule_data.llm_provider is not None:
+        schedule.llm_provider = schedule_data.llm_provider
+    if schedule_data.llm_base_url is not None:
+        schedule.llm_base_url = schedule_data.llm_base_url
     if schedule_data.inputs is not None:
         schedule.inputs = schedule_data.inputs
     if schedule_data.is_active is not None:
@@ -141,6 +149,8 @@ def update_schedule(
                 flow_id=schedule.flow_id,
                 cron_expression=schedule.cron_expression,
                 model_override=schedule.model_override,
+                llm_provider=schedule.llm_provider,
+                llm_base_url=schedule.llm_base_url,
                 inputs=schedule.inputs
             )
             
