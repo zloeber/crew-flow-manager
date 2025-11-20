@@ -22,6 +22,8 @@ class FlowExecutor:
         execution_id: int,
         flow: Flow,
         model_override: Optional[str] = None,
+        llm_provider: Optional[str] = None,
+        llm_base_url: Optional[str] = None,
         inputs: Optional[Dict[str, Any]] = None
     ):
         """
@@ -32,6 +34,8 @@ class FlowExecutor:
             execution_id: Execution record ID
             flow: Flow model instance
             model_override: Optional model to override default
+            llm_provider: LLM provider (openai, ollama, custom)
+            llm_base_url: Custom base URL for LLM endpoint
             inputs: Optional input parameters
         """
         execution = db.query(Execution).filter(Execution.id == execution_id).first()
@@ -64,6 +68,12 @@ class FlowExecutor:
             
             if model_override:
                 logs.append(f"[{datetime.utcnow().isoformat()}] Using model override: {model_override}")
+            
+            if llm_provider:
+                logs.append(f"[{datetime.utcnow().isoformat()}] LLM Provider: {llm_provider}")
+            
+            if llm_base_url:
+                logs.append(f"[{datetime.utcnow().isoformat()}] LLM Base URL: {llm_base_url}")
             
             if inputs:
                 logs.append(f"[{datetime.utcnow().isoformat()}] Inputs: {inputs}")

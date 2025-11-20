@@ -32,8 +32,12 @@ class Settings(BaseSettings):
     # Scheduler
     SCHEDULER_TIMEZONE: str = "UTC"
     
-    # CrewAI
+    # CrewAI / LLM Configuration
     OPENAI_API_KEY: str = os.getenv("OPENAI_API_KEY", "")
+    OPENAI_API_BASE: str = os.getenv("OPENAI_API_BASE", "")
+    LLM_PROVIDER: str = os.getenv("LLM_PROVIDER", "openai")  # openai, ollama, custom
+    LLM_MODEL: str = os.getenv("LLM_MODEL", "gpt-4")
+    OLLAMA_BASE_URL: str = os.getenv("OLLAMA_BASE_URL", "http://localhost:11434")
     
     class Config:
         env_file = ".env"

@@ -13,6 +13,7 @@ A full-stack web application for managing, executing, and monitoring CrewAI Flow
 - 🛠️ **MCP Tools Discovery**: Browse and discover available MCP server tools
 - 🗄️ **PostgreSQL Persistence**: Reliable data storage with SQLAlchemy ORM
 - 🐳 **Docker Support**: Fully containerized with Docker Compose
+- 🤖 **Local LLM Support**: Use local LLMs like Ollama instead of OpenAI
 
 ## Tech Stack
 
@@ -52,7 +53,10 @@ A full-stack web application for managing, executing, and monitoring CrewAI Flow
 2. **Set environment variables**
    ```bash
    cp backend/.env.example backend/.env
-   # Edit backend/.env and add your OPENAI_API_KEY
+   # Edit backend/.env and configure:
+   # - For OpenAI: Add your OPENAI_API_KEY
+   # - For Ollama: Set LLM_PROVIDER=ollama and OLLAMA_BASE_URL
+   # See LOCAL_LLM_SETUP.md for detailed configuration
    ```
 
 3. **Start the application**
@@ -193,6 +197,43 @@ The **Executions** page shows all flow runs with:
 ### MCP Tools
 
 The **MCP Tools** page displays available tools from MCP servers that can be used in your flows.
+
+## Using Local LLMs (Ollama)
+
+CrewAI Flow Manager supports local LLM providers like Ollama, allowing you to run AI models locally without external API calls.
+
+### Quick Setup
+
+1. **Install Ollama**
+   ```bash
+   curl -fsSL https://ollama.ai/install.sh | sh
+   ```
+
+2. **Pull a model**
+   ```bash
+   ollama pull llama2
+   ```
+
+3. **Configure backend/.env**
+   ```bash
+   LLM_PROVIDER=ollama
+   OLLAMA_BASE_URL=http://localhost:11434
+   LLM_MODEL=llama2
+   OPENAI_API_KEY=ollama
+   ```
+
+4. **Use in the UI**
+   - When executing a flow, select "Ollama (Local)" as the LLM Provider
+   - Enter `http://localhost:11434` as the base URL
+   - Specify the model name (e.g., `llama2`, `mistral`)
+
+### Supported Providers
+
+- **OpenAI** - Standard OpenAI API (default)
+- **Ollama** - Local LLM runtime
+- **Custom** - Any OpenAI-compatible endpoint
+
+For detailed setup instructions and troubleshooting, see [LOCAL_LLM_SETUP.md](LOCAL_LLM_SETUP.md).
 
 ## API Documentation
 
@@ -361,6 +402,7 @@ For issues and questions:
 
 ## Roadmap
 
+- [x] Local LLM support (Ollama and custom endpoints)
 - [ ] User authentication and authorization
 - [ ] Flow templates library
 - [ ] Enhanced execution logs with streaming

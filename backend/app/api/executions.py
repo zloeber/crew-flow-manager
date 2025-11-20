@@ -21,13 +21,15 @@ def run_execution_in_background(
     execution_id: int,
     flow: Flow,
     model_override: str = None,
+    llm_provider: str = None,
+    llm_base_url: str = None,
     inputs: dict = None
 ):
     """Run execution in background"""
     loop = asyncio.new_event_loop()
     asyncio.set_event_loop(loop)
     loop.run_until_complete(
-        flow_executor.execute_flow(db, execution_id, flow, model_override, inputs)
+        flow_executor.execute_flow(db, execution_id, flow, model_override, llm_provider, llm_base_url, inputs)
     )
     loop.close()
 
@@ -87,6 +89,8 @@ def create_execution(
     execution = Execution(
         flow_id=execution_data.flow_id,
         model_override=execution_data.model_override,
+        llm_provider=execution_data.llm_provider,
+        llm_base_url=execution_data.llm_base_url,
         inputs=execution_data.inputs
     )
     
@@ -101,6 +105,8 @@ def create_execution(
         execution.id,
         flow,
         execution_data.model_override,
+        execution_data.llm_provider,
+        execution_data.llm_base_url,
         execution_data.inputs
     )
     
