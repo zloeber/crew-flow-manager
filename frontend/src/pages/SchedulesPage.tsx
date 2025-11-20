@@ -14,6 +14,8 @@ function SchedulesPage() {
     name: '',
     cron_expression: '0 0 * * *',
     model_override: '',
+    llm_provider: '',
+    llm_base_url: '',
     inputs: '{}',
     is_active: true,
   })
@@ -51,6 +53,8 @@ function SchedulesPage() {
         ...formData,
         inputs: formData.inputs ? JSON.parse(formData.inputs) : null,
         model_override: formData.model_override || null,
+        llm_provider: formData.llm_provider || null,
+        llm_base_url: formData.llm_base_url || null,
       }
       await schedulesApi.create(data)
       setShowModal(false)
@@ -68,6 +72,8 @@ function SchedulesPage() {
         ...formData,
         inputs: formData.inputs ? JSON.parse(formData.inputs) : null,
         model_override: formData.model_override || null,
+        llm_provider: formData.llm_provider || null,
+        llm_base_url: formData.llm_base_url || null,
       }
       await schedulesApi.update(editingSchedule.id, data)
       setShowModal(false)
@@ -110,6 +116,8 @@ function SchedulesPage() {
       name: schedule.name,
       cron_expression: schedule.cron_expression,
       model_override: schedule.model_override || '',
+      llm_provider: schedule.llm_provider || '',
+      llm_base_url: schedule.llm_base_url || '',
       inputs: schedule.inputs ? JSON.stringify(schedule.inputs, null, 2) : '{}',
       is_active: schedule.is_active,
     })
@@ -123,6 +131,8 @@ function SchedulesPage() {
       name: '',
       cron_expression: '0 0 * * *',
       model_override: '',
+      llm_provider: '',
+      llm_base_url: '',
       inputs: '{}',
       is_active: true,
     })
@@ -270,8 +280,34 @@ function SchedulesPage() {
                   className="input"
                   value={formData.model_override}
                   onChange={(e) => setFormData({ ...formData, model_override: e.target.value })}
-                  placeholder="gpt-4"
+                  placeholder="gpt-4, llama2, etc."
                 />
+              </div>
+              <div>
+                <label className="label">LLM Provider (optional)</label>
+                <select
+                  className="input"
+                  value={formData.llm_provider}
+                  onChange={(e) => setFormData({ ...formData, llm_provider: e.target.value })}
+                >
+                  <option value="">Default (OpenAI)</option>
+                  <option value="openai">OpenAI</option>
+                  <option value="ollama">Ollama (Local)</option>
+                  <option value="custom">Custom Endpoint</option>
+                </select>
+              </div>
+              <div>
+                <label className="label">LLM Base URL (optional)</label>
+                <input
+                  type="text"
+                  className="input"
+                  value={formData.llm_base_url}
+                  onChange={(e) => setFormData({ ...formData, llm_base_url: e.target.value })}
+                  placeholder="http://localhost:11434 for Ollama"
+                />
+                <p className="text-xs text-gray-500 mt-1">
+                  For Ollama: http://localhost:11434, or custom OpenAI-compatible endpoint
+                </p>
               </div>
               <div>
                 <label className="label">Inputs (JSON, optional)</label>

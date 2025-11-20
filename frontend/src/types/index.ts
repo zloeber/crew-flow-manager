@@ -14,6 +14,8 @@ export interface Execution {
   flow_id: number
   status: 'pending' | 'running' | 'success' | 'failed' | 'cancelled'
   model_override?: string
+  llm_provider?: string
+  llm_base_url?: string
   inputs?: Record<string, any>
   outputs?: Record<string, any>
   error_message?: string
@@ -29,6 +31,8 @@ export interface Schedule {
   name: string
   cron_expression: string
   model_override?: string
+  llm_provider?: string
+  llm_base_url?: string
   inputs?: Record<string, any>
   is_active: boolean
   last_run_at?: string

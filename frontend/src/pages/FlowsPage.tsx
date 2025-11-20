@@ -9,12 +9,20 @@ function FlowsPage() {
   const [loading, setLoading] = useState(true)
   const [showModal, setShowModal] = useState(false)
   const [showViewModal, setShowViewModal] = useState(false)
+  const [showExecuteModal, setShowExecuteModal] = useState(false)
   const [editingFlow, setEditingFlow] = useState<Flow | null>(null)
   const [viewingFlow, setViewingFlow] = useState<Flow | null>(null)
+  const [executingFlow, setExecutingFlow] = useState<Flow | null>(null)
   const [formData, setFormData] = useState({
     name: '',
     description: '',
     yaml_content: 'name: My Flow\ndescription: A sample CrewAI flow\n',
+  })
+  const [executeFormData, setExecuteFormData] = useState({
+    model_override: '',
+    llm_provider: '',
+    llm_base_url: '',
+    inputs: '{}',
   })
 
   useEffect(() => {
@@ -66,13 +74,39 @@ function FlowsPage() {
     }
   }
 
-  const handleExecute = async (flowId: number) => {
+  const handleExecute = async () => {
+    if (!executingFlow) return
     try {
-      await executionsApi.create({ flow_id: flowId })
+      const data = {
+        flow_id: executingFlow.id,
+        model_override: executeFormData.model_override || null,
+        llm_provider: executeFormData.llm_provider || null,
+        llm_base_url: executeFormData.llm_base_url || null,
+        inputs: executeFormData.inputs ? JSON.parse(executeFormData.inputs) : null,
+      }
+      await executionsApi.create(data)
+      setShowExecuteModal(false)
+      setExecutingFlow(null)
+      resetExecuteForm()
       alert('Execution started successfully')
     } catch (error: any) {
       alert(error.response?.data?.detail || 'Error starting execution')
     }
+  }
+
+  const openExecuteModal = (flow: Flow) => {
+    setExecutingFlow(flow)
+    resetExecuteForm()
+    setShowExecuteModal(true)
+  }
+
+  const resetExecuteForm = () => {
+    setExecuteFormData({
+      model_override: '',
+      llm_provider: '',
+      llm_base_url: '',
+      inputs: '{}',
+    })
   }
 
   const openCreateModal = () => {
@@ -162,7 +196,7 @@ function FlowsPage() {
                 <Edit className="w-5 h-5" />
               </button>
               <button
-                onClick={() => handleExecute(flow.id)}
+                onClick={() => openExecuteModal(flow)}
                 className="btn-success p-2"
                 title="Execute"
                 disabled={!flow.is_valid}
@@ -267,6 +301,77 @@ function FlowsPage() {
             <div className="flex justify-end mt-6">
               <button onClick={() => setShowViewModal(false)} className="btn-secondary">
                 Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Execute Modal */}
+      {showExecuteModal && executingFlow && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-gray-800 rounded-lg p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+            <h2 className="text-2xl font-bold mb-4">Execute Flow: {executingFlow.name}</h2>
+            <div className="space-y-4">
+              <div>
+                <label className="label">Model Override (optional)</label>
+                <input
+                  type="text"
+                  className="input"
+                  value={executeFormData.model_override}
+                  onChange={(e) => setExecuteFormData({ ...executeFormData, model_override: e.target.value })}
+                  placeholder="gpt-4, llama2, etc."
+                />
+              </div>
+              <div>
+                <label className="label">LLM Provider (optional)</label>
+                <select
+                  className="input"
+                  value={executeFormData.llm_provider}
+                  onChange={(e) => setExecuteFormData({ ...executeFormData, llm_provider: e.target.value })}
+                >
+                  <option value="">Default (OpenAI)</option>
+                  <option value="openai">OpenAI</option>
+                  <option value="ollama">Ollama (Local)</option>
+                  <option value="custom">Custom Endpoint</option>
+                </select>
+              </div>
+              <div>
+                <label className="label">LLM Base URL (optional)</label>
+                <input
+                  type="text"
+                  className="input"
+                  value={executeFormData.llm_base_url}
+                  onChange={(e) => setExecuteFormData({ ...executeFormData, llm_base_url: e.target.value })}
+                  placeholder="http://localhost:11434 for Ollama"
+                />
+                <p className="text-xs text-gray-500 mt-1">
+                  For Ollama: http://localhost:11434, or custom OpenAI-compatible endpoint
+                </p>
+              </div>
+              <div>
+                <label className="label">Inputs (JSON, optional)</label>
+                <textarea
+                  className="input"
+                  rows={4}
+                  value={executeFormData.inputs}
+                  onChange={(e) => setExecuteFormData({ ...executeFormData, inputs: e.target.value })}
+                />
+              </div>
+            </div>
+            <div className="flex justify-end space-x-2 mt-6">
+              <button
+                onClick={() => {
+                  setShowExecuteModal(false)
+                  setExecutingFlow(null)
+                  resetExecuteForm()
+                }}
+                className="btn-secondary"
+              >
+                Cancel
+              </button>
+              <button onClick={handleExecute} className="btn-success">
+                Execute
               </button>
             </div>
           </div>
