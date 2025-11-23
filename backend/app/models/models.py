@@ -78,3 +78,19 @@ class Schedule(Base):
     
     # Relationships
     flow = relationship("Flow", back_populates="schedules")
+
+
+class MCPServer(Base):
+    """MCP Server model - stores MCP server configurations"""
+    __tablename__ = "mcp_servers"
+    
+    id = Column(Integer, primary_key=True, index=True)
+    name = Column(String(255), unique=True, nullable=False, index=True)
+    command = Column(String(500), nullable=False)
+    args = Column(JSON, nullable=True)  # List of command arguments
+    env = Column(JSON, nullable=True)  # Environment variables
+    type = Column(String(50), default="stdio")  # stdio or http
+    url = Column(String(500), nullable=True)  # For HTTP type servers
+    is_active = Column(Boolean, default=True)
+    created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)

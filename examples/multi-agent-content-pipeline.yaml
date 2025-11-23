@@ -1,0 +1,114 @@
+# Multi-Agent Content Creation Flow
+# This flow demonstrates collaboration between multiple specialized agents
+
+name: Multi-Agent Content Pipeline
+description: A comprehensive content creation pipeline with specialized agents for research, writing, editing, and SEO optimization
+
+agents:
+  - role: Research Specialist
+    goal: Conduct thorough research on the given topic and gather credible sources
+    backstory: |
+      You are an experienced research specialist with a background in academic research
+      and journalism. You have a keen eye for identifying credible sources and can quickly
+      synthesize information from multiple sources. You excel at fact-checking and
+      ensuring information accuracy.
+    tools: []
+    
+  - role: Content Writer
+    goal: Create engaging, well-structured content based on research findings
+    backstory: |
+      You are a creative content writer with years of experience in creating compelling
+      narratives. You understand how to transform research into engaging stories that
+      resonate with audiences. You have a strong command of language and can adapt
+      your writing style to different audiences and purposes.
+    tools: []
+    
+  - role: Editor
+    goal: Review and refine content for clarity, grammar, and flow
+    backstory: |
+      You are a meticulous editor with a sharp eye for detail. You've worked with
+      major publications and understand the importance of clear, concise communication.
+      You excel at improving content structure, fixing grammatical errors, and ensuring
+      consistency in tone and style.
+    tools: []
+    
+  - role: SEO Specialist
+    goal: Optimize content for search engines and improve discoverability
+    backstory: |
+      You are an SEO expert who stays current with search engine algorithms and best
+      practices. You understand how to naturally incorporate keywords, optimize meta
+      descriptions, and structure content for maximum visibility. You balance SEO
+      requirements with readability and user experience.
+    tools: []
+
+tasks:
+  - description: |
+      Research the topic thoroughly:
+      1. Identify key concepts and themes
+      2. Find at least 5 credible sources
+      3. Extract relevant facts, statistics, and quotes
+      4. Organize findings into a structured research brief
+    agent: Research Specialist
+    expected_output: |
+      A comprehensive research brief containing:
+      - Overview of the topic
+      - Key findings and insights
+      - Credible sources with citations
+      - Relevant statistics and data points
+      - Quotes from experts (if available)
+    
+  - description: |
+      Write compelling content based on the research:
+      1. Create an engaging introduction
+      2. Develop main points with supporting evidence
+      3. Use storytelling techniques to maintain reader interest
+      4. Include relevant examples and case studies
+      5. Write a strong conclusion with actionable takeaways
+    agent: Content Writer
+    expected_output: |
+      A well-structured article (800-1200 words) with:
+      - Attention-grabbing headline
+      - Engaging introduction
+      - 3-5 main sections with subheadings
+      - Evidence-based arguments
+      - Clear conclusion
+    context:
+      - Research Specialist
+    
+  - description: |
+      Edit and refine the content:
+      1. Check for grammatical errors and typos
+      2. Improve sentence structure and flow
+      3. Ensure consistency in tone and style
+      4. Verify facts and citations
+      5. Enhance readability and clarity
+    agent: Editor
+    expected_output: |
+      Polished content with:
+      - Corrected grammar and spelling
+      - Improved readability
+      - Consistent tone throughout
+      - Verified facts and proper citations
+      - Smooth transitions between sections
+    context:
+      - Content Writer
+    
+  - description: |
+      Optimize the content for SEO:
+      1. Identify primary and secondary keywords
+      2. Optimize title and headings with keywords
+      3. Write SEO-friendly meta description
+      4. Suggest internal/external linking opportunities
+      5. Ensure proper use of header tags (H1, H2, H3)
+      6. Optimize for featured snippets where applicable
+    agent: SEO Specialist
+    expected_output: |
+      SEO-optimized version with:
+      - Keyword-rich title (under 60 characters)
+      - Compelling meta description (under 160 characters)
+      - Optimized headings and subheadings
+      - Natural keyword integration
+      - List of suggested links
+      - Recommendations for improvement
+    context:
+      - Editor

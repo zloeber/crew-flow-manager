@@ -119,11 +119,55 @@ class ScheduleResponse(ScheduleBase):
         from_attributes = True
 
 
+# MCP Server Schemas
+class MCPServerBase(BaseModel):
+    """Base MCP Server schema"""
+    name: str = Field(..., min_length=1, max_length=255)
+    command: str = Field(..., min_length=1)
+    args: Optional[List[str]] = None
+    env: Optional[Dict[str, str]] = None
+    type: str = Field(default="stdio")
+    url: Optional[str] = None
+    is_active: bool = True
+
+
+class MCPServerCreate(MCPServerBase):
+    """Schema for creating an MCP server"""
+    pass
+
+
+class MCPServerUpdate(BaseModel):
+    """Schema for updating an MCP server"""
+    name: Optional[str] = Field(None, min_length=1, max_length=255)
+    command: Optional[str] = Field(None, min_length=1)
+    args: Optional[List[str]] = None
+    env: Optional[Dict[str, str]] = None
+    type: Optional[str] = None
+    url: Optional[str] = None
+    is_active: Optional[bool] = None
+
+
+class MCPServerResponse(MCPServerBase):
+    """Schema for MCP server response"""
+    id: int
+    created_at: datetime
+    updated_at: datetime
+    
+    class Config:
+        from_attributes = True
+
+
+class MCPServersImport(BaseModel):
+    """Schema for importing MCP servers"""
+    servers: Dict[str, Dict[str, Any]]
+
+
 # MCP Tools Schema
 class MCPTool(BaseModel):
     """Schema for MCP tool"""
     name: str
     description: str
+    server: str  # Server name that provides this tool
     parameters: Optional[Dict[str, Any]] = None
 
 
@@ -131,6 +175,20 @@ class MCPToolsResponse(BaseModel):
     """Schema for MCP tools response"""
     tools: List[MCPTool]
     count: int
+    servers: List[str]  # List of server names
+
+
+# Flow Import/Export Schemas
+class FlowExport(BaseModel):
+    """Schema for exporting a flow"""
+    name: str
+    description: Optional[str] = None
+    yaml_content: str
+
+
+class FlowsExport(BaseModel):
+    """Schema for exporting multiple flows"""
+    flows: List[FlowExport]
 
 
 # WebSocket Messages

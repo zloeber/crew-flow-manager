@@ -63,16 +63,6 @@ function ExecutionsPage() {
     return flow?.name || `Flow ${flowId}`
   }
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'success': return 'text-green-500'
-      case 'failed': return 'text-red-500'
-      case 'running': return 'text-blue-500'
-      case 'pending': return 'text-yellow-500'
-      default: return 'text-gray-500'
-    }
-  }
-
   const getStatusBadge = (status: string) => {
     const baseClass = 'px-3 py-1 rounded-full text-sm font-medium'
     switch (status) {

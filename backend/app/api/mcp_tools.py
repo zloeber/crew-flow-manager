@@ -1,8 +1,12 @@
 """
 MCP Tools discovery API endpoints
 """
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends
+from sqlalchemy.orm import Session
 from app.schemas.schemas import MCPToolsResponse, MCPTool
+from app.db.database import get_db
+from app.models.models import MCPServer
+from app.services.mcp_tools_loader import mcp_tools_loader
 import logging
 
 logger = logging.getLogger(__name__)
@@ -10,74 +14,37 @@ router = APIRouter()
 
 
 @router.get("/", response_model=MCPToolsResponse)
-def list_mcp_tools():
+async def list_mcp_tools(db: Session = Depends(get_db)):
     """
     List available MCP server tools
     
-    In a real implementation, this would discover and list tools from MCP servers.
-    For now, returning mock data.
+    Loads tools from all active MCP servers configured in the database.
     """
-    # Mock MCP tools for demonstration
-    mock_tools = [
-        MCPTool(
-            name="web_search",
-            description="Search the web for information",
-            parameters={
-                "query": {
-                    "type": "string",
-                    "description": "Search query"
-                },
-                "max_results": {
-                    "type": "integer",
-                    "description": "Maximum number of results to return"
-                }
-            }
-        ),
-        MCPTool(
-            name="file_read",
-            description="Read contents of a file",
-            parameters={
-                "path": {
-                    "type": "string",
-                    "description": "Path to the file"
-                }
-            }
-        ),
-        MCPTool(
-            name="code_analysis",
-            description="Analyze code for patterns and issues",
-            parameters={
-                "code": {
-                    "type": "string",
-                    "description": "Code to analyze"
-                },
-                "language": {
-                    "type": "string",
-                    "description": "Programming language"
-                }
-            }
-        ),
-        MCPTool(
-            name="data_transform",
-            description="Transform data from one format to another",
-            parameters={
-                "data": {
-                    "type": "string",
-                    "description": "Data to transform"
-                },
-                "from_format": {
-                    "type": "string",
-                    "description": "Source format"
-                },
-                "to_format": {
-                    "type": "string",
-                    "description": "Target format"
-                }
-            }
-        )
-    ]
+    # Get all active MCP servers
+    servers = db.query(MCPServer).filter(MCPServer.is_active == True).all()
+    
+    all_tools = []
+    server_names = []
+    
+    for server in servers:
+        server_names.append(server.name)
+        
+        # Load tools from server using mock data
+        # In a full implementation, this would actually query the server
+        mock_tools = mcp_tools_loader.get_mock_tools_for_server(server.name)
+        
+        for tool in mock_tools:
+            all_tools.append(
+                MCPTool(
+                    name=tool["name"],
+                    description=tool["description"],
+                    server=server.name,
+                    parameters=tool.get("parameters")
+                )
+            )
     
     return MCPToolsResponse(
-        tools=mock_tools,
-        count=len(mock_tools)
+        tools=all_tools,
+        count=len(all_tools),
+        servers=server_names
     )

@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Activity, CheckCircle, XCircle, Clock } from 'lucide-react'
+import { Activity, CheckCircle, Clock } from 'lucide-react'
 import { flowsApi, executionsApi, schedulesApi } from '../services/api'
 
 function HomePage() {
