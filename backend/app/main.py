@@ -7,7 +7,7 @@ from fastapi.staticfiles import StaticFiles
 from contextlib import asynccontextmanager
 import logging
 
-from app.api import flows, executions, schedules, mcp_tools, websocket
+from app.api import flows, executions, schedules, mcp_tools, mcp_servers, websocket
 from app.core.config import settings
 from app.db.database import engine, Base
 from app.services.scheduler import scheduler_service
@@ -63,6 +63,7 @@ app.include_router(flows.router, prefix="/api/flows", tags=["flows"])
 app.include_router(executions.router, prefix="/api/executions", tags=["executions"])
 app.include_router(schedules.router, prefix="/api/schedules", tags=["schedules"])
 app.include_router(mcp_tools.router, prefix="/api/mcp-tools", tags=["mcp-tools"])
+app.include_router(mcp_servers.router, prefix="/api/mcp-servers", tags=["mcp-servers"])
 app.include_router(websocket.router, prefix="/ws", tags=["websocket"])
 
 

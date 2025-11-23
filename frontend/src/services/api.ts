@@ -19,6 +19,16 @@ export const flowsApi = {
   validate: (yaml_content: string) => api.post('/flows/validate', yaml_content, {
     headers: { 'Content-Type': 'text/plain' }
   }),
+  import: (file: File) => {
+    const formData = new FormData()
+    formData.append('file', file)
+    return api.post('/flows/import', formData, {
+      headers: { 'Content-Type': 'multipart/form-data' }
+    })
+  },
+  export: (id: number) => api.get(`/flows/${id}/export`, {
+    responseType: 'blob'
+  }),
 }
 
 // Executions
@@ -41,4 +51,23 @@ export const schedulesApi = {
 // MCP Tools
 export const mcpToolsApi = {
   getAll: () => api.get('/mcp-tools'),
+}
+
+// MCP Servers
+export const mcpServersApi = {
+  getAll: () => api.get('/mcp-servers'),
+  getById: (id: number) => api.get(`/mcp-servers/${id}`),
+  create: (data: any) => api.post('/mcp-servers', data),
+  update: (id: number, data: any) => api.put(`/mcp-servers/${id}`, data),
+  delete: (id: number) => api.delete(`/mcp-servers/${id}`),
+  import: (file: File) => {
+    const formData = new FormData()
+    formData.append('file', file)
+    return api.post('/mcp-servers/import', formData, {
+      headers: { 'Content-Type': 'multipart/form-data' }
+    })
+  },
+  export: () => api.get('/mcp-servers/export/all', {
+    responseType: 'blob'
+  }),
 }

@@ -41,9 +41,23 @@ export interface Schedule {
   updated_at: string
 }
 
+export interface MCPServer {
+  id: number
+  name: string
+  command: string
+  args?: string[]
+  env?: Record<string, string>
+  type: string
+  url?: string
+  is_active: boolean
+  created_at: string
+  updated_at: string
+}
+
 export interface MCPTool {
   name: string
   description: string
+  server: string
   parameters?: Record<string, any>
 }
 

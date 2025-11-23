@@ -1,5 +1,5 @@
-import { useEffect, useState } from 'react'
-import { Plus, Edit, Trash2, Eye, Play, CheckCircle, XCircle } from 'lucide-react'
+import { useEffect, useState, useRef } from 'react'
+import { Plus, Edit, Trash2, Eye, Play, CheckCircle, XCircle, Upload, Download, FileText } from 'lucide-react'
 import Editor from '@monaco-editor/react'
 import { flowsApi, executionsApi } from '../services/api'
 import { Flow } from '../types'
@@ -10,9 +10,11 @@ function FlowsPage() {
   const [showModal, setShowModal] = useState(false)
   const [showViewModal, setShowViewModal] = useState(false)
   const [showExecuteModal, setShowExecuteModal] = useState(false)
+  const [showImportModal, setShowImportModal] = useState(false)
   const [editingFlow, setEditingFlow] = useState<Flow | null>(null)
   const [viewingFlow, setViewingFlow] = useState<Flow | null>(null)
   const [executingFlow, setExecutingFlow] = useState<Flow | null>(null)
+  const fileInputRef = useRef<HTMLInputElement>(null)
   const [formData, setFormData] = useState({
     name: '',
     description: '',
@@ -138,6 +140,71 @@ function FlowsPage() {
     })
   }
 
+  const handleImportFile = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0]
+    if (!file) return
+
+    try {
+      await flowsApi.import(file)
+      alert('Flow imported successfully')
+      loadFlows()
+      setShowImportModal(false)
+    } catch (error: any) {
+      alert(error.response?.data?.detail || 'Error importing flow')
+    }
+    
+    // Reset file input
+    if (fileInputRef.current) {
+      fileInputRef.current.value = ''
+    }
+  }
+
+  const handleExportFlow = async (flowId: number, flowName: string) => {
+    try {
+      const response = await flowsApi.export(flowId)
+      const blob = new Blob([response.data], { type: 'application/x-yaml' })
+      const url = window.URL.createObjectURL(blob)
+      const a = document.createElement('a')
+      a.href = url
+      a.download = `${flowName.replace(/\s+/g, '_')}.yaml`
+      document.body.appendChild(a)
+      a.click()
+      window.URL.revokeObjectURL(url)
+      document.body.removeChild(a)
+    } catch (error) {
+      alert('Error exporting flow')
+    }
+  }
+
+  const openImportModal = () => {
+    setShowImportModal(true)
+  }
+
+  const exampleFlows = [
+    { name: 'simple_flow.yaml', path: '/examples/simple_flow.yaml' },
+    { name: 'sample_flow.yaml', path: '/examples/sample_flow.yaml' },
+    { name: 'ollama-flow-example.yaml', path: '/examples/ollama-flow-example.yaml' },
+    { name: 'multi-agent-content-pipeline.yaml', path: '/examples/multi-agent-content-pipeline.yaml' },
+    { name: 'multi-agent-software-dev.yaml', path: '/examples/multi-agent-software-dev.yaml' },
+  ]
+
+  const handleImportExample = async (examplePath: string) => {
+    try {
+      const response = await fetch(examplePath)
+      if (!response.ok) throw new Error('Failed to fetch example')
+      
+      const blob = await response.blob()
+      const file = new File([blob], examplePath.split('/').pop() || 'example.yaml', { type: 'application/x-yaml' })
+      
+      await flowsApi.import(file)
+      alert('Example flow imported successfully')
+      loadFlows()
+      setShowImportModal(false)
+    } catch (error: any) {
+      alert(error.response?.data?.detail || 'Error importing example flow')
+    }
+  }
+
   if (loading) {
     return (
       <div className="flex justify-center items-center h-64">
@@ -150,10 +217,16 @@ function FlowsPage() {
     <div>
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-3xl font-bold">Flows</h1>
-        <button onClick={openCreateModal} className="btn-primary flex items-center">
-          <Plus className="w-5 h-5 mr-2" />
-          New Flow
-        </button>
+        <div className="flex space-x-2">
+          <button onClick={openImportModal} className="btn-secondary flex items-center">
+            <Upload className="w-5 h-5 mr-2" />
+            Import
+          </button>
+          <button onClick={openCreateModal} className="btn-primary flex items-center">
+            <Plus className="w-5 h-5 mr-2" />
+            New Flow
+          </button>
+        </div>
       </div>
 
       <div className="grid grid-cols-1 gap-4">
@@ -187,6 +260,13 @@ function FlowsPage() {
                 title="View"
               >
                 <Eye className="w-5 h-5" />
+              </button>
+              <button
+                onClick={() => handleExportFlow(flow.id, flow.name)}
+                className="btn-secondary p-2"
+                title="Export"
+              >
+                <Download className="w-5 h-5" />
               </button>
               <button
                 onClick={() => openEditModal(flow)}
@@ -372,6 +452,61 @@ function FlowsPage() {
               </button>
               <button onClick={handleExecute} className="btn-success">
                 Execute
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Import Modal */}
+      {showImportModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-gray-800 rounded-lg p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+            <h2 className="text-2xl font-bold mb-4">Import Flow</h2>
+            
+            <div className="space-y-6">
+              {/* File Upload Section */}
+              <div>
+                <h3 className="text-lg font-semibold mb-2">Import from File</h3>
+                <p className="text-gray-400 text-sm mb-3">
+                  Upload a YAML file to import a flow
+                </p>
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept=".yaml,.yml"
+                  onChange={handleImportFile}
+                  className="input"
+                />
+              </div>
+
+              {/* Example Flows Section */}
+              <div>
+                <h3 className="text-lg font-semibold mb-2">Import Example Flows</h3>
+                <p className="text-gray-400 text-sm mb-3">
+                  Click on an example to import it
+                </p>
+                <div className="space-y-2">
+                  {exampleFlows.map((example) => (
+                    <button
+                      key={example.path}
+                      onClick={() => handleImportExample(example.path)}
+                      className="w-full text-left px-4 py-3 bg-gray-700 hover:bg-gray-600 rounded-lg transition-colors flex items-center"
+                    >
+                      <FileText className="w-5 h-5 mr-3 text-blue-400" />
+                      <span>{example.name}</span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            <div className="flex justify-end mt-6">
+              <button
+                onClick={() => setShowImportModal(false)}
+                className="btn-secondary"
+              >
+                Close
               </button>
             </div>
           </div>
