@@ -1,0 +1,79 @@
+name: Custom Endpoint Example Flow
+description: An example flow using a custom OpenAI-compatible endpoint
+
+# This example demonstrates how to use custom OpenAI-compatible endpoints
+# This could be:
+# - Your own hosted OpenAI-compatible API
+# - LM Studio running locally
+# - Text Generation WebUI with OpenAI extension
+# - vLLM serving endpoints
+# - Any other OpenAI-compatible service
+
+agents:
+  - role: Code Reviewer
+    goal: Review code for best practices and potential issues
+    backstory: |
+      You are a senior software engineer with expertise in multiple
+      programming languages and a keen eye for code quality and security.
+
+  - role: Documentation Writer
+    goal: Write clear and comprehensive documentation
+    backstory: |
+      You are a technical writer specializing in developer documentation,
+      making complex concepts accessible and actionable.
+
+tasks:
+  - description: |
+      Review the provided code snippet for:
+      - Code quality and readability
+      - Security vulnerabilities
+      - Performance issues
+      - Best practice violations
+    agent: Code Reviewer
+    expected_output: |
+      A detailed code review report with specific recommendations
+      for improvements, categorized by severity.
+    
+  - description: |
+      Create API documentation for the reviewed code including:
+      - Function descriptions
+      - Parameter explanations
+      - Return value documentation
+      - Usage examples
+    agent: Documentation Writer
+    expected_output: |
+      Well-formatted API documentation ready to be published.
+    context:
+      - Code Reviewer
+
+# Execution Configuration (when using UI):
+# - Model Override: your-model-name
+# - LLM Provider: Custom Endpoint
+# - LLM Base URL: https://your-api.com/v1
+# - Inputs:
+#   {
+#     "code_snippet": "def example_function():\n    pass"
+#   }
+
+# Environment Configuration (backend/.env):
+# LLM_PROVIDER=custom
+# OPENAI_API_BASE=https://your-api.com/v1
+# OPENAI_API_KEY=your-api-key-here
+# LLM_MODEL=your-model-name
+
+# Examples of custom endpoints:
+# 
+# LM Studio (local):
+# OPENAI_API_BASE=http://localhost:1234/v1
+# OPENAI_API_KEY=lm-studio
+# LLM_MODEL=local-model
+#
+# vLLM:
+# OPENAI_API_BASE=http://your-server:8000/v1
+# OPENAI_API_KEY=your-token
+# LLM_MODEL=meta-llama/Llama-2-7b-chat-hf
+#
+# Text Generation WebUI:
+# OPENAI_API_BASE=http://localhost:5000/v1
+# OPENAI_API_KEY=none
+# LLM_MODEL=your-loaded-model

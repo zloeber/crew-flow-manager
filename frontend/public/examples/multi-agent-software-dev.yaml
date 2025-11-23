@@ -1,0 +1,152 @@
+# Multi-Agent Software Development Flow
+# This flow demonstrates how multiple agents can collaborate on software development tasks
+
+name: Software Development Team Flow
+description: A collaborative software development workflow with specialized agents for different aspects of development
+
+agents:
+  - role: Product Manager
+    goal: Define clear requirements and user stories for the software feature
+    backstory: |
+      You are an experienced product manager who excels at understanding user needs
+      and translating them into clear, actionable requirements. You have a strong
+      background in agile methodologies and user-centered design.
+    tools: []
+    
+  - role: Software Architect
+    goal: Design the technical architecture and system design for the feature
+    backstory: |
+      You are a senior software architect with extensive experience in designing
+      scalable, maintainable systems. You understand design patterns, best practices,
+      and can make informed decisions about technology choices.
+    tools: []
+    
+  - role: Backend Developer
+    goal: Implement the backend logic and APIs
+    backstory: |
+      You are a skilled backend developer proficient in multiple programming languages
+      and frameworks. You write clean, efficient code and follow best practices for
+      API design, database optimization, and security.
+    tools: []
+    
+  - role: Frontend Developer
+    goal: Create the user interface and implement client-side functionality
+    backstory: |
+      You are a talented frontend developer with expertise in modern JavaScript
+      frameworks and UI/UX design. You create responsive, accessible interfaces
+      that provide excellent user experiences.
+    tools: []
+    
+  - role: QA Engineer
+    goal: Develop test plans and ensure code quality
+    backstory: |
+      You are a detail-oriented QA engineer who excels at finding bugs and ensuring
+      software quality. You understand various testing methodologies and can create
+      comprehensive test plans that cover edge cases.
+    tools: []
+
+tasks:
+  - description: |
+      Define the product requirements:
+      1. Identify the problem to solve
+      2. Define user personas
+      3. Create user stories with acceptance criteria
+      4. List functional and non-functional requirements
+      5. Define success metrics
+    agent: Product Manager
+    expected_output: |
+      Product requirements document containing:
+      - Problem statement
+      - User personas (2-3)
+      - User stories with acceptance criteria (5-8 stories)
+      - Functional requirements list
+      - Non-functional requirements (performance, security, etc.)
+      - Success metrics and KPIs
+    
+  - description: |
+      Design the system architecture:
+      1. Propose technical architecture
+      2. Define system components and their interactions
+      3. Choose appropriate technologies and frameworks
+      4. Design database schema
+      5. Define API contracts
+      6. Consider scalability and security
+    agent: Software Architect
+    expected_output: |
+      Technical design document with:
+      - High-level architecture diagram
+      - Component breakdown
+      - Technology stack recommendations
+      - Database schema design
+      - API endpoint specifications
+      - Security considerations
+      - Scalability approach
+    context:
+      - Product Manager
+    
+  - description: |
+      Implement the backend:
+      1. Set up project structure
+      2. Implement database models
+      3. Create API endpoints
+      4. Implement business logic
+      5. Add error handling and validation
+      6. Write unit tests
+    agent: Backend Developer
+    expected_output: |
+      Backend implementation including:
+      - Project setup code
+      - Database models and migrations
+      - API endpoint implementations
+      - Business logic implementation
+      - Error handling mechanisms
+      - Unit tests with good coverage
+      - API documentation
+    context:
+      - Software Architect
+    
+  - description: |
+      Implement the frontend:
+      1. Set up frontend project structure
+      2. Create UI components
+      3. Implement state management
+      4. Integrate with backend APIs
+      5. Add form validation
+      6. Ensure responsive design
+      7. Implement error handling
+    agent: Frontend Developer
+    expected_output: |
+      Frontend implementation with:
+      - Component structure
+      - UI implementation matching designs
+      - State management setup
+      - API integration code
+      - Form validation logic
+      - Responsive design implementation
+      - User-friendly error messages
+    context:
+      - Software Architect
+      - Backend Developer
+    
+  - description: |
+      Create test plan and test the implementation:
+      1. Review requirements and implementation
+      2. Create comprehensive test plan
+      3. Identify test scenarios (happy path, edge cases, error cases)
+      4. Write integration tests
+      5. Perform manual testing
+      6. Document bugs and issues
+      7. Verify bug fixes
+    agent: QA Engineer
+    expected_output: |
+      Quality assurance report with:
+      - Test plan document
+      - List of test scenarios
+      - Integration test suite
+      - Test execution results
+      - Bug report (if any issues found)
+      - Recommendations for improvement
+      - Sign-off when all tests pass
+    context:
+      - Backend Developer
+      - Frontend Developer

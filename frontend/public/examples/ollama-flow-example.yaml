@@ -1,0 +1,53 @@
+name: Local LLM Example Flow
+description: An example flow using local LLM (Ollama) for AI tasks
+
+# This example demonstrates how to use local LLMs with CrewAI Flow Manager
+# Prerequisites:
+# 1. Install Ollama: curl -fsSL https://ollama.ai/install.sh | sh
+# 2. Pull a model: ollama pull llama2
+# 3. Configure backend/.env with LLM_PROVIDER=ollama
+
+agents:
+  - role: Research Assistant
+    goal: Research topics thoroughly using local LLM
+    backstory: |
+      You are an experienced research assistant with deep knowledge
+      across many domains. You work entirely offline using local models
+      to maintain privacy and reduce costs.
+    llm: llama2  # Local model from Ollama
+
+  - role: Content Writer
+    goal: Create engaging content based on research
+    backstory: |
+      You are a skilled content writer who can transform research
+      into accessible, engaging content for various audiences.
+    llm: mistral  # Another local model option
+
+tasks:
+  - description: Research the topic of sustainable energy solutions
+    agent: Research Assistant
+    expected_output: |
+      A comprehensive summary of current sustainable energy technologies,
+      their benefits, challenges, and future potential.
+    
+  - description: |
+      Write a blog post about sustainable energy based on the research,
+      making it accessible for general audiences
+    agent: Content Writer
+    expected_output: |
+      An engaging 500-word blog post explaining sustainable energy
+      in simple terms with practical examples.
+    context:
+      - Research Assistant
+
+# Execution Configuration (when using UI):
+# - Model Override: llama2 or mistral
+# - LLM Provider: Ollama (Local)
+# - LLM Base URL: http://localhost:11434
+# - Inputs: {} (no specific inputs required)
+
+# Environment Configuration (backend/.env):
+# LLM_PROVIDER=ollama
+# OLLAMA_BASE_URL=http://localhost:11434
+# LLM_MODEL=llama2
+# OPENAI_API_KEY=ollama
