@@ -35,14 +35,19 @@
         "SEARXNG_URL": "http://localhost:8081"
       },
     },
-    "openmemory-mcp": {
-      "url": "http://localhost:8080/mcp-proxy",
-      "type": "http"
-    },
+    // "openmemory-mcp": {
+    //   "url": "http://localhost:8080/mcp-proxy",
+    //   "type": "http"
+    // },
     "mcp-feedback-enhanced": {
-      "url": "http://localhost:9000/mcp",
-      "type": "http",
+      "command": "uvx",
+      "args": ["mcp-feedback-enhanced", "server"],
+      "type": "stdio"
     },
+    // "mcp-feedback-enhanced": {
+    //   "url": "http://localhost:9000/mcp",
+    //   "type": "http",
+    // },
     "mcp-server-git": {
       "command": "uvx",
       "args": ["mcp-server-git"],
