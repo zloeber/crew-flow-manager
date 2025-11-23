@@ -35,6 +35,7 @@ By participating in this project, you agree to maintain a respectful and inclusi
 ### Prerequisites
 
 - Python 3.11+
+- [uv](https://docs.astral.sh/uv/) (fast Python package installer)
 - Node.js 20+
 - PostgreSQL 16+
 - Docker (optional)
@@ -43,18 +44,18 @@ By participating in this project, you agree to maintain a respectful and inclusi
 
 ```bash
 cd backend
-python3 -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
-pip install -r requirements.txt
+
+# Install uv if not already installed
+curl -LsSf https://astral.sh/uv/install.sh | sh
+
+# Install dependencies
+uv sync
 
 # Set up database
 export DATABASE_URL="postgresql://user:pass@localhost:5432/crewai_flows"
 
-# Run migrations (if any)
-# alembic upgrade head
-
 # Start development server
-uvicorn app.main:app --reload
+uv run uvicorn app.main:app --reload
 ```
 
 ### Frontend Setup

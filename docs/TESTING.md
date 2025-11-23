@@ -26,16 +26,19 @@ This will check:
 
 ```bash
 cd backend
-python3 -m venv venv
-source venv/bin/activate
-pip install -r requirements.txt
+
+# Install uv if not already installed
+curl -LsSf https://astral.sh/uv/install.sh | sh
+
+# Install dependencies
+uv sync
 
 # Set up environment
 export DATABASE_URL="sqlite:///./test.db"
 export SECRET_KEY="test-secret-key"
 
 # Run the server
-uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
+uv run uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
 ```
 
 #### Test API Endpoints

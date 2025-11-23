@@ -39,6 +39,7 @@ A full-stack web application for managing, executing, and monitoring CrewAI Flow
 - Docker and Docker Compose
 - OR:
   - Python 3.11+
+  - [uv](https://docs.astral.sh/uv/) (fast Python package installer)
   - Node.js 20+
   - PostgreSQL 16+
 
@@ -78,15 +79,14 @@ A full-stack web application for managing, executing, and monitoring CrewAI Flow
    cd backend
    ```
 
-2. **Create virtual environment**
+2. **Install uv (if not already installed)**
    ```bash
-   python -m venv venv
-   source venv/bin/activate  # On Windows: venv\Scripts\activate
+   curl -LsSf https://astral.sh/uv/install.sh | sh
    ```
 
 3. **Install dependencies**
    ```bash
-   pip install -r requirements.txt
+   uv sync
    ```
 
 4. **Configure environment**
@@ -103,7 +103,7 @@ A full-stack web application for managing, executing, and monitoring CrewAI Flow
 
 6. **Run the backend**
    ```bash
-   uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
+   uv run uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
    ```
 
 ### Frontend Setup
