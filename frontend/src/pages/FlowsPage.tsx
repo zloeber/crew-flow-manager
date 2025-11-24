@@ -138,9 +138,6 @@ function FlowsPage() {
       setSelectedTasks(availableTasks.map(t => t.description))
     }
   }
-    resetExecuteForm()
-    setShowExecuteModal(true)
-  }
 
   const resetExecuteForm = () => {
     setExecuteFormData({
