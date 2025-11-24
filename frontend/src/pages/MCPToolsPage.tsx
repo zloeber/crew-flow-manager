@@ -1,5 +1,5 @@
 import { useEffect, useState, useRef } from 'react'
-import { RefreshCw, Search, Plus, Edit, Trash2, Upload, Download, Server } from 'lucide-react'
+import { RefreshCw, Search, Plus, Edit, Trash2, Upload, Download, Server, ChevronDown, ChevronUp } from 'lucide-react'
 import { mcpToolsApi, mcpServersApi } from '../services/api'
 import { MCPTool, MCPServer } from '../types'
 
@@ -12,6 +12,7 @@ function MCPToolsPage() {
   const [showServerModal, setShowServerModal] = useState(false)
   const [editingServer, setEditingServer] = useState<MCPServer | null>(null)
   const [showImportModal, setShowImportModal] = useState(false)
+  const [expandedServers, setExpandedServers] = useState<Set<number>>(new Set())
   const fileInputRef = useRef<HTMLInputElement>(null)
   const [serverFormData, setServerFormData] = useState({
     name: '',
@@ -181,6 +182,18 @@ function MCPToolsPage() {
     }
   }
 
+  const toggleServerExpanded = (serverId: number) => {
+    setExpandedServers(prev => {
+      const newSet = new Set(prev)
+      if (newSet.has(serverId)) {
+        newSet.delete(serverId)
+      } else {
+        newSet.add(serverId)
+      }
+      return newSet
+    })
+  }
+
   if (loading) {
     return (
       <div className="flex justify-center items-center h-64">
@@ -216,13 +229,26 @@ function MCPToolsPage() {
       {/* MCP Servers Section */}
       <div className="mb-8">
         <h2 className="text-2xl font-semibold mb-4">MCP Servers</h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {servers.map((server) => (
+        <div className="grid grid-cols-1 gap-4">
+          {servers.map((server) => {
+            const isExpanded = expandedServers.has(server.id)
+            return (
             <div key={server.id} className="card">
               <div className="flex justify-between items-start mb-3">
-                <div className="flex items-center">
+                <div className="flex items-center flex-1">
                   <Server className="w-5 h-5 mr-2 text-blue-400" />
                   <h3 className="text-lg font-semibold">{server.name}</h3>
+                  <button
+                    onClick={() => toggleServerExpanded(server.id)}
+                    className="ml-3 text-gray-400 hover:text-white"
+                    title={isExpanded ? 'Collapse details' : 'Expand details'}
+                  >
+                    {isExpanded ? (
+                      <ChevronUp className="w-5 h-5" />
+                    ) : (
+                      <ChevronDown className="w-5 h-5" />
+                    )}
+                  </button>
                 </div>
                 <div className="flex space-x-2">
                   <button
@@ -241,22 +267,65 @@ function MCPToolsPage() {
                   </button>
                 </div>
               </div>
+              
+              {/* Summary Info */}
               <div className="text-sm space-y-1">
-                <p className="text-gray-400">
-                  <span className="font-semibold">Command:</span> {server.command}
-                </p>
                 <p className="text-gray-400">
                   <span className="font-semibold">Type:</span> {server.type}
                 </p>
                 <p className="text-gray-400">
                   <span className="font-semibold">Status:</span>{' '}
                   <span className={server.is_active ? 'text-green-400' : 'text-red-400'}>
-                    {server.is_active ? 'Active' : 'Inactive'}
+                    {server.is_active ? '● Active' : '○ Inactive'}
                   </span>
                 </p>
               </div>
+
+              {/* Expanded Details */}
+              {isExpanded && (
+                <div className="mt-4 pt-4 border-t border-gray-700 space-y-3">
+                  <div>
+                    <p className="text-xs font-semibold text-gray-400 mb-1">Command:</p>
+                    <code className="text-sm bg-gray-900 px-2 py-1 rounded block overflow-x-auto">
+                      {server.command}
+                    </code>
+                  </div>
+                  
+                  {server.args && server.args.length > 0 && (
+                    <div>
+                      <p className="text-xs font-semibold text-gray-400 mb-1">Arguments:</p>
+                      <code className="text-sm bg-gray-900 px-2 py-1 rounded block overflow-x-auto">
+                        {JSON.stringify(server.args, null, 2)}
+                      </code>
+                    </div>
+                  )}
+                  
+                  {server.env && Object.keys(server.env).length > 0 && (
+                    <div>
+                      <p className="text-xs font-semibold text-gray-400 mb-1">Environment Variables:</p>
+                      <code className="text-sm bg-gray-900 px-2 py-1 rounded block overflow-x-auto">
+                        {JSON.stringify(server.env, null, 2)}
+                      </code>
+                    </div>
+                  )}
+                  
+                  {server.url && (
+                    <div>
+                      <p className="text-xs font-semibold text-gray-400 mb-1">URL:</p>
+                      <code className="text-sm bg-gray-900 px-2 py-1 rounded block overflow-x-auto">
+                        {server.url}
+                      </code>
+                    </div>
+                  )}
+                  
+                  <div className="flex items-center space-x-4 text-xs text-gray-500">
+                    <span>Created: {new Date(server.created_at).toLocaleString()}</span>
+                    <span>Updated: {new Date(server.updated_at).toLocaleString()}</span>
+                  </div>
+                </div>
+              )}
             </div>
-          ))}
+          )})}
         </div>
         {servers.length === 0 && (
           <div className="card text-center text-gray-400">

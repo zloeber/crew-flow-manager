@@ -254,3 +254,49 @@ def export_multiple_flows(flow_ids: List[int], db: Session = Depends(get_db)):
             "Content-Disposition": f"attachment; filename=flows_export.yaml"
         }
     )
+
+
+@router.get("/{flow_id}/tasks")
+def get_flow_tasks(flow_id: int, db: Session = Depends(get_db)):
+    """Get list of tasks from a flow's YAML configuration"""
+    flow = db.query(Flow).filter(Flow.id == flow_id).first()
+    if not flow:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Flow with id {flow_id} not found"
+        )
+    
+    try:
+        # Parse YAML to extract tasks
+        data = yaml.safe_load(flow.yaml_content)
+        tasks = data.get('tasks', [])
+        
+        # Format task list with descriptions
+        task_list = []
+        for i, task in enumerate(tasks):
+            task_info = {
+                'index': i,
+                'description': task.get('description', f'Task {i+1}'),
+                'agent': task.get('agent', 'Unknown'),
+                'expected_output': task.get('expected_output', 'Not specified')
+            }
+            task_list.append(task_info)
+        
+        return {
+            'flow_id': flow_id,
+            'flow_name': flow.name,
+            'tasks': task_list,
+            'total_tasks': len(task_list)
+        }
+        
+    except yaml.YAMLError as e:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Invalid YAML format: {str(e)}"
+        )
+    except Exception as e:
+        logger.error(f"Error getting flow tasks: {str(e)}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Error getting flow tasks: {str(e)}"
+        )
