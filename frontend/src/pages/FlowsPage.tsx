@@ -22,7 +22,7 @@ function FlowsPage() {
   const [viewingFlow, setViewingFlow] = useState<Flow | null>(null)
   const [executingFlow, setExecutingFlow] = useState<Flow | null>(null)
   const [availableTasks, setAvailableTasks] = useState<FlowTask[]>([])
-  const [selectedTasks, setSelectedTasks] = useState<string[]>([])
+  const [selectedTaskIndices, setSelectedTaskIndices] = useState<number[]>([])
   const fileInputRef = useRef<HTMLInputElement>(null)
   const [formData, setFormData] = useState({
     name: '',
@@ -88,13 +88,18 @@ function FlowsPage() {
   const handleExecute = async () => {
     if (!executingFlow) return
     try {
+      // Convert selected indices to task descriptions
+      const selectedTaskDescriptions = selectedTaskIndices.length > 0
+        ? selectedTaskIndices.map(idx => availableTasks[idx].description)
+        : null
+      
       const data = {
         flow_id: executingFlow.id,
         model_override: executeFormData.model_override || null,
         llm_provider: executeFormData.llm_provider || null,
         llm_base_url: executeFormData.llm_base_url || null,
         inputs: executeFormData.inputs ? JSON.parse(executeFormData.inputs) : null,
-        selected_tasks: selectedTasks.length > 0 ? selectedTasks : null,
+        selected_tasks: selectedTaskDescriptions,
       }
       await executionsApi.create(data)
       setShowExecuteModal(false)
@@ -109,7 +114,7 @@ function FlowsPage() {
   const openExecuteModal = async (flow: Flow) => {
     setExecutingFlow(flow)
     resetExecuteForm()
-    setSelectedTasks([])
+    setSelectedTaskIndices([])
     
     // Load available tasks
     try {
@@ -118,24 +123,25 @@ function FlowsPage() {
     } catch (error) {
       console.error('Error loading tasks:', error)
       setAvailableTasks([])
+      alert('Warning: Could not load tasks for this flow. All tasks will be executed.')
     }
     
     setShowExecuteModal(true)
   }
 
-  const toggleTaskSelection = (taskDescription: string) => {
-    setSelectedTasks(prev => 
-      prev.includes(taskDescription)
-        ? prev.filter(t => t !== taskDescription)
-        : [...prev, taskDescription]
+  const toggleTaskSelection = (taskIndex: number) => {
+    setSelectedTaskIndices(prev => 
+      prev.includes(taskIndex)
+        ? prev.filter(idx => idx !== taskIndex)
+        : [...prev, taskIndex]
     )
   }
 
   const toggleAllTasks = () => {
-    if (selectedTasks.length === availableTasks.length) {
-      setSelectedTasks([])
+    if (selectedTaskIndices.length === availableTasks.length) {
+      setSelectedTaskIndices([])
     } else {
-      setSelectedTasks(availableTasks.map(t => t.description))
+      setSelectedTaskIndices(availableTasks.map((_, idx) => idx))
     }
   }
 
@@ -485,7 +491,7 @@ function FlowsPage() {
                       onClick={toggleAllTasks}
                       className="text-sm text-blue-400 hover:text-blue-300"
                     >
-                      {selectedTasks.length === availableTasks.length ? 'Deselect All' : 'Select All'}
+                      {selectedTaskIndices.length === availableTasks.length ? 'Deselect All' : 'Select All'}
                     </button>
                   </div>
                   <div className="space-y-2 max-h-60 overflow-y-auto border border-gray-700 rounded-lg p-3">
@@ -493,9 +499,9 @@ function FlowsPage() {
                       <div
                         key={task.index}
                         className="flex items-start space-x-3 p-2 hover:bg-gray-700 rounded cursor-pointer"
-                        onClick={() => toggleTaskSelection(task.description)}
+                        onClick={() => toggleTaskSelection(task.index)}
                       >
-                        {selectedTasks.includes(task.description) ? (
+                        {selectedTaskIndices.includes(task.index) ? (
                           <CheckSquare className="w-5 h-5 text-blue-400 flex-shrink-0 mt-0.5" />
                         ) : (
                           <Square className="w-5 h-5 text-gray-500 flex-shrink-0 mt-0.5" />
@@ -507,14 +513,14 @@ function FlowsPage() {
                       </div>
                     ))}
                   </div>
-                  {selectedTasks.length === 0 && (
+                  {selectedTaskIndices.length === 0 && (
                     <p className="text-xs text-yellow-400 mt-2">
                       No tasks selected - all tasks will be executed
                     </p>
                   )}
-                  {selectedTasks.length > 0 && (
+                  {selectedTaskIndices.length > 0 && (
                     <p className="text-xs text-green-400 mt-2">
-                      {selectedTasks.length} of {availableTasks.length} task(s) selected
+                      {selectedTaskIndices.length} of {availableTasks.length} task(s) selected
                     </p>
                   )}
                 </div>

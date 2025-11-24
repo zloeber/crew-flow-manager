@@ -188,8 +188,9 @@ class FlowExecutor:
                 llm_config['base_url'] = llm_base_url
             
             # Set API key from environment or provider
+            api_key_override = None
             if llm_provider == 'ollama':
-                os.environ['OPENAI_API_KEY'] = 'ollama'  # Dummy key for Ollama
+                api_key_override = 'ollama'  # Dummy key for Ollama
                 if not llm_config.get('base_url'):
                     llm_config['base_url'] = 'http://localhost:11434/v1'
             
@@ -197,6 +198,9 @@ class FlowExecutor:
             llm = None
             if llm_config:
                 try:
+                    # Only set env var temporarily if needed
+                    if api_key_override:
+                        llm_config['api_key'] = api_key_override
                     llm = ChatOpenAI(**llm_config)
                     logs.append(f"[{datetime.utcnow().isoformat()}] Configured LLM: {llm_config}")
                 except Exception as e:
@@ -275,7 +279,10 @@ class FlowExecutor:
             
             # Execute in thread pool to avoid blocking
             loop = asyncio.get_event_loop()
+            start_time = datetime.utcnow()
             result = await loop.run_in_executor(None, crew.kickoff, inputs or {})
+            end_time = datetime.utcnow()
+            execution_time = (end_time - start_time).total_seconds()
             
             logs.append(f"[{datetime.utcnow().isoformat()}] Crew execution completed successfully")
             
@@ -284,7 +291,7 @@ class FlowExecutor:
                 "result": str(result),
                 "tasks_executed": len(tasks),
                 "agents_used": len(agents),
-                "execution_time": "calculated by caller"
+                "execution_time": execution_time
             }
             
         except ImportError as e:
