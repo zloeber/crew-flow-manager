@@ -29,6 +29,7 @@ export const flowsApi = {
   export: (id: number) => api.get(`/flows/${id}/export`, {
     responseType: 'blob'
   }),
+  getTasks: (id: number) => api.get(`/flows/${id}/tasks`),
 }
 
 // Executions

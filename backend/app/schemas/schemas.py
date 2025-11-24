@@ -56,6 +56,7 @@ class ExecutionCreate(BaseModel):
     llm_provider: Optional[str] = None  # openai, ollama, custom
     llm_base_url: Optional[str] = None  # Custom base URL for LLM
     inputs: Optional[Dict[str, Any]] = None
+    selected_tasks: Optional[List[str]] = None  # Optional list of task descriptions to execute
 
 
 class ExecutionResponse(BaseModel):

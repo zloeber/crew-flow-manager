@@ -1,8 +1,15 @@
 import { useEffect, useState, useRef } from 'react'
-import { Plus, Edit, Trash2, Eye, Play, CheckCircle, XCircle, Upload, Download, FileText } from 'lucide-react'
+import { Plus, Edit, Trash2, Eye, Play, CheckCircle, XCircle, Upload, Download, FileText, CheckSquare, Square } from 'lucide-react'
 import Editor from '@monaco-editor/react'
 import { flowsApi, executionsApi } from '../services/api'
 import { Flow } from '../types'
+
+interface FlowTask {
+  index: number
+  description: string
+  agent: string
+  expected_output: string
+}
 
 function FlowsPage() {
   const [flows, setFlows] = useState<Flow[]>([])
@@ -14,6 +21,8 @@ function FlowsPage() {
   const [editingFlow, setEditingFlow] = useState<Flow | null>(null)
   const [viewingFlow, setViewingFlow] = useState<Flow | null>(null)
   const [executingFlow, setExecutingFlow] = useState<Flow | null>(null)
+  const [availableTasks, setAvailableTasks] = useState<FlowTask[]>([])
+  const [selectedTasks, setSelectedTasks] = useState<string[]>([])
   const fileInputRef = useRef<HTMLInputElement>(null)
   const [formData, setFormData] = useState({
     name: '',
@@ -85,6 +94,7 @@ function FlowsPage() {
         llm_provider: executeFormData.llm_provider || null,
         llm_base_url: executeFormData.llm_base_url || null,
         inputs: executeFormData.inputs ? JSON.parse(executeFormData.inputs) : null,
+        selected_tasks: selectedTasks.length > 0 ? selectedTasks : null,
       }
       await executionsApi.create(data)
       setShowExecuteModal(false)
@@ -96,8 +106,38 @@ function FlowsPage() {
     }
   }
 
-  const openExecuteModal = (flow: Flow) => {
+  const openExecuteModal = async (flow: Flow) => {
     setExecutingFlow(flow)
+    resetExecuteForm()
+    setSelectedTasks([])
+    
+    // Load available tasks
+    try {
+      const response = await flowsApi.getTasks(flow.id)
+      setAvailableTasks(response.data.tasks || [])
+    } catch (error) {
+      console.error('Error loading tasks:', error)
+      setAvailableTasks([])
+    }
+    
+    setShowExecuteModal(true)
+  }
+
+  const toggleTaskSelection = (taskDescription: string) => {
+    setSelectedTasks(prev => 
+      prev.includes(taskDescription)
+        ? prev.filter(t => t !== taskDescription)
+        : [...prev, taskDescription]
+    )
+  }
+
+  const toggleAllTasks = () => {
+    if (selectedTasks.length === availableTasks.length) {
+      setSelectedTasks([])
+    } else {
+      setSelectedTasks(availableTasks.map(t => t.description))
+    }
+  }
     resetExecuteForm()
     setShowExecuteModal(true)
   }
@@ -438,6 +478,50 @@ function FlowsPage() {
                   onChange={(e) => setExecuteFormData({ ...executeFormData, inputs: e.target.value })}
                 />
               </div>
+              
+              {/* Task Selection */}
+              {availableTasks.length > 0 && (
+                <div>
+                  <div className="flex justify-between items-center mb-2">
+                    <label className="label">Select Tasks to Execute</label>
+                    <button
+                      onClick={toggleAllTasks}
+                      className="text-sm text-blue-400 hover:text-blue-300"
+                    >
+                      {selectedTasks.length === availableTasks.length ? 'Deselect All' : 'Select All'}
+                    </button>
+                  </div>
+                  <div className="space-y-2 max-h-60 overflow-y-auto border border-gray-700 rounded-lg p-3">
+                    {availableTasks.map((task) => (
+                      <div
+                        key={task.index}
+                        className="flex items-start space-x-3 p-2 hover:bg-gray-700 rounded cursor-pointer"
+                        onClick={() => toggleTaskSelection(task.description)}
+                      >
+                        {selectedTasks.includes(task.description) ? (
+                          <CheckSquare className="w-5 h-5 text-blue-400 flex-shrink-0 mt-0.5" />
+                        ) : (
+                          <Square className="w-5 h-5 text-gray-500 flex-shrink-0 mt-0.5" />
+                        )}
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-medium text-white truncate">{task.description}</p>
+                          <p className="text-xs text-gray-400">Agent: {task.agent}</p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                  {selectedTasks.length === 0 && (
+                    <p className="text-xs text-yellow-400 mt-2">
+                      No tasks selected - all tasks will be executed
+                    </p>
+                  )}
+                  {selectedTasks.length > 0 && (
+                    <p className="text-xs text-green-400 mt-2">
+                      {selectedTasks.length} of {availableTasks.length} task(s) selected
+                    </p>
+                  )}
+                </div>
+              )}
             </div>
             <div className="flex justify-end space-x-2 mt-6">
               <button
